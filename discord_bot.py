@@ -14,7 +14,7 @@ client = discord.Client(intents = intents)
 
 bot = commands.Bot(command_prefix='!', help_command=None, intents = intents)
 
-jogo = joguinho.Joguinho()
+jogos = {}
 
 @bot.event
 async def on_message(ctx):
@@ -31,18 +31,23 @@ async def on_message(ctx):
       return
 
     if command[1] == 'iniciar':
-      jogo.iniciar()
+      jogos[ctx.guild.id] = joguinho.Joguinho()
+      jogos[ctx.guild.id].iniciar()
       await ctx.channel.send('ii man prepara ai 😲')
       return
 
+    if command[1] == "terminar":
+      jogos[ctx.guild.id].resetar()
+      await ctx.channel.send('terminou o jogo pq nubao 😡')
+      return
     
-    resultado = jogo.tentativa(command[1].lower())
+    resultado = jogos[ctx.guild.id].tentativa(command[1].lower())
 
     if resultado == joguinho.ERRO:
       await ctx.channel.send('ei man joga direito ai 😤')
       return  
 
-    proximidade = jogo.proximidade.replace("X",":green_square:").replace("O",":yellow_square:").replace("-",":black_large_square:")
+    proximidade = jogos[ctx.guild.id].proximidade.replace("X",":green_square:").replace("O",":yellow_square:").replace("-",":black_large_square:")
     palavra_em_emoji = ''.join(map(lambda x: f':regional_indicator_{x}:', command[1]))
     await ctx.channel.send(palavra_em_emoji)
     await ctx.channel.send(proximidade)
